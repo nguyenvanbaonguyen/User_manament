@@ -1,0 +1,23 @@
+services:
+  app:
+    image: dev1
+    volumes:
+      - ./:/app 
+    ports:
+      - 3000:3000
+    environment:
+      - MONGO_HOST=mongo
+      - REDIS_HOST=redis
+  mongo:
+    image: mongo
+    restart: always
+    volumes:
+      - mongodbdata:/data/db
+  redis:
+    image: redis:5-alpine
+    volumes:
+      - redis:/data
+    restart: unless-stopped
+volumes:
+  mongodbdata:
+  redis:
