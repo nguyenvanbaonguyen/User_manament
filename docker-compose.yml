@@ -1,13 +1,8 @@
 services:
   app:
-    image: dev1
-    volumes:
-      - ./:/app 
+    build: .
     ports:
       - 3000:3000
-    environment:
-      - MONGO_HOST=mongo
-      - REDIS_HOST=redis
   mongo:
     image: mongo
     restart: always

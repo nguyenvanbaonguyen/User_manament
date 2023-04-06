@@ -9,7 +9,7 @@ const Crypto = require("../../../../classes/Crypto.class");
 const { HOST } = require("../../../../config");
 
 const register = async (req, res, next) => {
-  const dataUser = await UserValidation.validate(req.body);
+  const dataUser = req.body;
 
   const isExists = await UserModel.findOne({ email: dataUser.email });
   if (isExists) return next(new AppError(`Email ${dataUser.email} has been registed before`, 409));

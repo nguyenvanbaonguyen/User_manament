@@ -1,34 +1,51 @@
 const mongoose = require("mongoose");
 const mongoConnection = require("../../databases/mongo.connection");
-// const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 const HistoryUserModel = require("../historyUser/historyUser.model");
 const FactoryRelation = require("../../factory/FactoryRelation");
+const regexAll = require("../../../../helpers/regex");
 
 const Scheme = mongoose.Schema;
 
 const User = new Scheme(
   {
-    name: String,
+    name: {
+      type: String,
+      required: true,
+    },
     email: {
       type: String,
       unique: true,
+      validate: {
+        validator: (v) => {
+          return regexAll.email.test(v);
+        },
+        message: (props) => `${props.value} is not a valid email!`,
+      },
+      required: true,
     },
     phone: {
       type: String,
       unique: true,
+      required: true,
+      validate: {
+        validator: (v) => {
+          return regexAll.phone.test(v);
+        },
+        message: (props) => `${props.value} is not a valid phone number!`,
+      },
     },
     role: {
       default: "user",
       type: String,
     },
-    password: String,
+    password: {
+      type: String,
+      required: true,
+    },
     avatar: {
       type: mongoose.Schema.ObjectId,
       ref: "image",
-    },
-    timeLogout: {
-      default: Date.now(),
-      type: Date,
     },
   },
   {
@@ -49,12 +66,12 @@ UserDecorator.createRelation(HistoryUserModel, {
   .setDeleteCascade();
 
 User.methods.checkPassword = async function (password) {
-  // return await bcrypt.compare(password, this.password);
+  return await bcrypt.compare(password, this.password);
 };
 
 User.pre("save", async function (next) {
-  // if (!this.isModified("password")) return next();
-  // this.password = await bcrypt.hash(this.password, 12);
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
@@ -65,7 +82,7 @@ User.pre(/^find/, function (next) {
 
 User.pre(/^findOneAndUpdate/, async function (next) {
   if (!this._update?.password) return next();
-  // this._update.password = await bcrypt.hash(this._update.password, 12);
+  this._update.password = await bcrypt.hash(this._update.password, 12);
   next();
 });
 

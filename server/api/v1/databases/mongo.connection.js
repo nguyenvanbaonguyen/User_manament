@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { MONGO_HOST, MONGO_PORT, MONGO_NAME } = require("../../../config");
 
+console.log(MONGO_HOST);
 function newConnection(uri) {
   const conn = mongoose.createConnection(uri, {
     useNewUrlParser: true,
@@ -27,6 +28,7 @@ function newConnection(uri) {
 }
 
 const URI_MONGO = `mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_NAME}`;
+
 const mongoConnection = newConnection(URI_MONGO);
 
 module.exports = mongoConnection;

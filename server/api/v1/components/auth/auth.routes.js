@@ -5,6 +5,15 @@ const { register, login, sendRefreshToken, forgotPassword, resetPassword } = req
 
 const authRoute = express.Router();
 
+/**
+ * @openapi
+ * /min:
+ *   get:
+ *     description: Welcome to swagger-jsdoc!
+ *     responses:
+ *       200:
+ *         description: Returns a mysterious string.
+ */
 authRoute.post("/reset-password", resetPassword);
 
 authRoute.post("/forgot-password", forgotPassword);

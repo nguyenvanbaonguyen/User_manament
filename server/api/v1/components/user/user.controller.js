@@ -4,8 +4,8 @@ const { asyncWrapperMiddlewareObj } = require("../../../../helpers/errorWrapper"
 const { getLocalsRes } = require("../../../../helpers/localsRes");
 const HistoryUserModel = require("../historyUser/historyUser.model");
 const UserModel = require("./user.model");
-const UserValidation = require("./user.validation");
 const APIFeatures = require("../../../../classes/APIFeature.class");
+const handleData = require("../../../../helpers/handleData");
 
 const getMe = async (req, res, next) => {
   res.status(200).json({
@@ -16,9 +16,11 @@ const getMe = async (req, res, next) => {
 
 const updateMe = async (req, res, next) => {
   let { data, avatar } = req.body;
-  if (data) data = JSON.parse(data);
-  if (data && avatar) data.avatar = avatar;
-  const validatedData = await UserValidation.validate(data, { bans: ["password", "role"] });
+  if (!data) data = {};
+  data = JSON.parse(data);
+  if (avatar) data.avatar = avatar;
+  const validatedData = handleData(data, { bans: ["password", "role"] });
+  console.log(validatedData);
   const user = req.user;
   const newUser = await UserModel.findByIdAndUpdate(user._id, validatedData, { new: true });
 
