@@ -1,52 +1,90 @@
 const APIFeatures = require("../../../classes/APIFeature.class");
 const AppError = require("../../../classes/AppError.class");
+const handleData = require("../../../helpers/handleData");
 
 class FactoryCRUD {
-  constructor(Model, options) {
+  constructor(Model) {
     this.Model = Model;
-    this.options = options;
-    this.getOne = this.getOne.bind(this);
-    this.getAll = this.getAll.bind(this);
-    this.deleteOne = this.deleteOne.bind(this);
   }
 }
 
-FactoryCRUD.prototype.getOne = async function (req, res, next) {
-  const data = await this.Model.findById(req.params.id);
-  if (!data) return next(new AppError(`ID ${id} is not exists`, 400));
-
-  res.status(200).json({
-    status: "success",
-    data: {
-      data,
-    },
-  });
+FactoryCRUD.prototype.getOne = function () {
+  return async (req, res, next) => {
+    const data = await this.Model.findById(req.params.id);
+    if (!data) return next(new AppError(`ID ${id} is not exists`, 400));
+    if (data?.status === "deactivate")
+      return next(new AppError(`This data was deactivated, pls contact with admin to unblock that`, 403));
+    res.status(200).json({
+      status: "success",
+      data: {
+        data,
+      },
+    });
+  };
 };
 
-FactoryCRUD.prototype.getAll = async function (req, res, next) {
-  const selectOption = this.options?.select || null;
-
-  const data = await new APIFeatures(this.Model.find().select(selectOption), req.query).all().query;
-  const totalItems = await new APIFeatures(this.Model.find(), req.query).filter().query.count();
-
-  res.status(200).json({
-    status: "success",
-    data: {
-      data,
-      totalItems,
-    },
-  });
+FactoryCRUD.prototype.getAll = function (options) {
+  return async (req, res, next) => {
+    let additionRequest = {};
+    console.log(req.query);
+    if (options?.base === "userID") additionRequest[options?.base] = req.params?.id || req.user?._id;
+    else if (options?.base) additionRequest[options?.base] = req.params?.id;
+    if (options?.query) additionRequest = { ...additionRequest, ...options?.query };
+    const data = await new APIFeatures(this.Model.find(additionRequest), req.query).all().query;
+    const totalItems = await new APIFeatures(this.Model.find(additionRequest), req.query).filter().query.count();
+    res.status(200).json({
+      status: "success",
+      data: {
+        data,
+        totalItems,
+      },
+    });
+  };
 };
 
-FactoryCRUD.prototype.deleteOne = async function (req, res, next) {
-  const data = await this.Model.findByIdAndDelete(req.params.id);
+FactoryCRUD.prototype.updateOne = function (options) {
+  return async (req, res, next) => {
+    let { data } = req.body;
+    const id = req.params.id;
+    const result = await this.Model.findByIdAndUpdate(id, handleData(data, options), { new: true });
+    res.status(200).json({
+      status: "success",
+      data: result,
+    });
+  };
+};
 
-  if (!data) return next(new AppError(`No data found with that ID`, 404));
+FactoryCRUD.prototype.updateOneWithoutForm = function (options) {
+  return async (req, res, next) => {
+    const data = req.body;
+    const id = req.params.id;
+    const result = await this.Model.findByIdAndUpdate(id, handleData(data, options), { new: true });
+    res.status(200).json({
+      status: "success",
+      data: result,
+    });
+  };
+};
 
-  res.status(204).json({
-    status: "success",
-    data: null,
-  });
+FactoryCRUD.prototype.deleteOne = function () {
+  return async (req, res, next) => {
+    const data = await this.Model.findByIdAndDelete(req.params.id);
+    if (!data) return next(new AppError(`No data found with that ID`, 404));
+    res.status(204).json({
+      status: "success",
+      data: null,
+    });
+  };
+};
+
+FactoryCRUD.prototype.allowCorrectHost = function () {
+  return async (req, res, next) => {
+    if (req.user.role === "admin") return next();
+    const item = await this.Model.findById(req.params.id);
+    if (!item) return next(new AppError("No item with that ID", 404));
+    if ((await item.userID.toString()) == (await req.user._id.toString())) return next();
+    return next(new AppError("You dont have permission with this pet", 403));
+  };
 };
 
 module.exports = FactoryCRUD;

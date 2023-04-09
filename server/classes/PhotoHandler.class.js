@@ -14,10 +14,11 @@ const multerFilter = (req, file, cb) => {
 const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 
 class PhotoHandler {
-  constructor(nameStorage, placeGetID) {
+  constructor(nameStorage, placeGetID, placeSpread) {
     this.nameStorage = nameStorage;
     this.placeGetID = placeGetID;
     this.type = "public";
+    this.placeSpread = placeSpread;
   }
 
   chainHandlePhotos(fields) {
@@ -58,8 +59,16 @@ PhotoHandler.prototype.resizePhoto = function (width) {
     const fileName = `${this.nameStorage}-${req[this.placeGetID].id}-${Date.now()}.webp`;
     const fieldName = req.file.fieldname;
     const imageSave = new imageModel({ url: `${HOST}:${PORT}/api/v1/images/${fileName}`, type: this.type });
+    if (req.user) imageSave.userID = req.user._id;
     const imageStore = await imageSave.save();
-    req.body[fieldName] = imageStore._id;
+
+    if (this.placeSpread) {
+      const data = req.body[this.placeSpread];
+      req.body[this.placeSpread] = data
+        ? { ...JSON.parse(data), [fieldName]: imageStore._id }
+        : { [fieldName]: imageStore._id };
+    } else req.body[fieldName] = imageStore._id;
+
     await sharp(req.file.buffer).resize(width).webp().toFile(`${__imagedir}/${this.nameStorage}/${fileName}`);
     next();
   };

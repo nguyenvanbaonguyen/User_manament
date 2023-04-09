@@ -32,6 +32,10 @@ app.all("*", (req, res, next) => {
   return next(err);
 });
 
+// setInterval(() => {
+//   console.log(1);
+// }, 1000);
+
 app.use(errorReturn);
 
 module.exports = app;

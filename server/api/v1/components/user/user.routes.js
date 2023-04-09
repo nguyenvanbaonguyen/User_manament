@@ -1,32 +1,27 @@
 const express = require("express");
-const { saveHistoryUser } = require("../historyUser/historyUser.controller");
+const { saveHistoryUser, getUserHistory } = require("../historyUser/historyUser.controller");
 const { authUser, allowRoles } = require("../auth/auth.controller");
-const { getMe, updateMe, getUser, deleteUser, getUserHistory, getUsers, uploadAvatar } = require("./user.controller");
+const { getMe, updateMe, getUser, deleteUser, getUsers } = require("./user.controller");
 const PhotoHandler = require("../../../../classes/PhotoHandler.class");
+const { getPetsFromUser } = require("../pet/pet.controller");
 const userRoute = express.Router();
 
 const handlerPhoto = new PhotoHandler("users", "user");
 const uploadPhotoChain = handlerPhoto.chainHandlePhoto("avatar", 300);
 
-//* must authentication for use this route
+//! must authentication for use this route
 userRoute.use(authUser, saveHistoryUser);
-
-userRoute.route("/me/upload-avatar").patch(...uploadPhotoChain, uploadAvatar);
-
 userRoute.route("/me/histories").get(getUserHistory);
-
 userRoute
   .route("/me")
   .get(getMe)
   .put(...uploadPhotoChain, updateMe);
+userRoute.route("/me/pet").get(getPetsFromUser);
 
-//* must be admin to use this route
+//! must be admin to use this route
 userRoute.use(allowRoles(["admin"]));
-
 userRoute.route("/").get(getUsers);
-
 userRoute.route("/:id").get(getUser).delete(deleteUser);
-
 userRoute.route("/:id/histories").get(getUserHistory);
 
 module.exports = userRoute;

@@ -1,7 +1,8 @@
 class APIFeatures {
-  constructor(query, queryReq) {
+  constructor(query, queryReq, elasticFields) {
     this.query = query;
     this.queryReq = queryReq;
+    this.elasticFields = elasticFields;
   }
 
   filter() {
@@ -10,12 +11,13 @@ class APIFeatures {
     excludeFields.forEach((el) => delete queryObj[el]);
 
     let queryStr = JSON.stringify(queryObj);
-    console.log(queryStr);
     queryStr = queryStr.replace(/(\b(gte|gt|lte|lt)\b)/g, (match) => `$${match}`);
     queryStr = JSON.parse(queryStr);
-    Object.entries(queryStr).forEach(([key, value]) => {
-      if (typeof value === "string") queryStr[key] = new RegExp(value);
-    });
+    if (this.elasticFields && Array.isArray(this.elasticFields)) {
+      Object.entries(queryStr).forEach(([key, value]) => {
+        if (typeof value === "string" && this.elasticFields.include(key)) queryStr[key] = new RegExp(value);
+      });
+    }
     this.query = this.query.find(queryStr);
     return this;
   }
@@ -31,10 +33,10 @@ class APIFeatures {
   }
 
   limitFields() {
-    if (this.queryReq?.fields) {
-      const fields = this.queryReq.fields.split(",").join(" ");
-      this.query = this.query.select(fields);
-    }
+    // if (this.queryReq?.fields) {
+    //   const fields = this.queryReq.fields.split(",").join(" ");
+    //   this.query = this.query.select(fields);
+    // }
     return this;
   }
 

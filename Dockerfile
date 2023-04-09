@@ -5,5 +5,5 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm cache clean --force && rm -rf node_modules && npm install
 COPY . .
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
 EXPOSE 3000

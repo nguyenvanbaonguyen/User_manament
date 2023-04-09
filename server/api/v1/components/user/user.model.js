@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const HistoryUserModel = require("../historyUser/historyUser.model");
 const FactoryRelation = require("../../factory/FactoryRelation");
 const regexAll = require("../../../../helpers/regex");
+const petModel = require("../pet/pet.model");
 
 const Scheme = mongoose.Schema;
 
@@ -59,11 +60,15 @@ const UserDecorator = new FactoryRelation(User);
 
 UserDecorator.createRelation(HistoryUserModel, {
   ref: "user-history",
-  foreignField: "userId",
+  foreignField: "userID",
   localField: "_id",
-})
-  .setPopulate()
-  .setDeleteCascade();
+}).setPopulate();
+
+UserDecorator.createRelation(petModel, {
+  ref: "pet",
+  foreignField: "userID",
+  localField: "_id",
+});
 
 User.methods.checkPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
@@ -76,7 +81,7 @@ User.pre("save", async function (next) {
 });
 
 User.pre(/^find/, function (next) {
-  this.select("-password -timeLogout").populate("avatar");
+  this.select("-password").populate("avatar");
   next();
 });
 

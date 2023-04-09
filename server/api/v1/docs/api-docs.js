@@ -1,6 +1,7 @@
-const { string } = require("joi");
-const TokenScheme = require("./tokenScheme");
-const { RegisterUserSchema, UserResponse } = require("./userDocs");
+const possibleErrors = require("./possibleErrors");
+const filterScheme = require("./filterScheme");
+const TokenScheme = require("./token.scheme");
+const UserScheme = require("./user.scheme");
 
 const apiDocs = {
   swagger: "2.0",
@@ -23,37 +24,28 @@ const apiDocs = {
       post: {
         tags: ["auth"],
         summary: "register new user",
-        description: "",
         consumes: ["application/json"],
         produces: ["application/json"],
         parameters: [
           {
             name: "body",
             in: "body",
-            description: "All information is required",
-            required: true,
-            schema: RegisterUserSchema,
+            schema: filterScheme(UserScheme, { selects: "password phone email name" }),
           },
         ],
         responses: {
           200: {
-            description: "successful operation",
             schema: {
               type: "object",
               properties: {
                 status: {
                   example: "success",
                 },
-                data: UserResponse,
+                data: filterScheme(UserScheme, { excludes: "password avatar" }),
               },
             },
           },
-          409: {
-            description: "Email have been registed, so conflict",
-          },
-          400: {
-            description: "Bad request",
-          },
+          ...possibleErrors(400, 409),
         },
         security: [
           {
@@ -65,28 +57,18 @@ const apiDocs = {
     "/auth/login": {
       post: {
         tags: ["auth"],
-        summary: "login account",
-        description: "",
         consumes: ["application/json"],
         produces: ["application/json"],
         parameters: [
           {
             name: "body",
             in: "body",
-            description: "All information is required",
             required: true,
-            schema: {
-              type: "object",
-              properties: {
-                email: RegisterUserSchema.properties.email,
-                password: RegisterUserSchema.properties.password,
-              },
-            },
+            schema: filterScheme(UserScheme, { selects: "email password" }),
           },
         ],
         responses: {
           200: {
-            description: "successful operation",
             schema: {
               type: "object",
               properties: {
@@ -97,9 +79,7 @@ const apiDocs = {
               },
             },
           },
-          401: {
-            description: "Unauthorized",
-          },
+          ...possibleErrors(400, 401, 500),
         },
         security: [
           {
@@ -111,8 +91,6 @@ const apiDocs = {
     "/auth/refresh-token": {
       post: {
         tags: ["auth"],
-        summary: "register new user",
-        description: "",
         consumes: ["application/json"],
         produces: ["application/json"],
         parameters: [
@@ -161,7 +139,6 @@ const apiDocs = {
     "/auth/forgot-password": {
       post: {
         tags: ["auth"],
-        description: "use when user forget password",
         consumes: ["application/json"],
         produces: ["application/json"],
         parameters: [
@@ -169,14 +146,7 @@ const apiDocs = {
             name: "body",
             in: "body",
             required: true,
-            schema: {
-              type: "object",
-              properties: {
-                email: {
-                  example: "nguyenvanbaonguyennth@gmail.com",
-                },
-              },
-            },
+            schema: filterScheme(UserScheme, { selects: "email" }),
           },
         ],
         responses: {
@@ -198,11 +168,6 @@ const apiDocs = {
             description: "Bad request",
           },
         },
-        security: [
-          {
-            petstore_auth: ["write:pets", "read:pets"],
-          },
-        ],
       },
     },
     "/auth/reset-password": {
@@ -247,20 +212,11 @@ const apiDocs = {
               },
             },
           },
-          401: {
-            description: "Your refresh token is not valid",
-          },
-          400: {
-            description: "Bad request",
-          },
+          ...possibleErrors(400, 401, 429),
         },
-        security: [
-          {
-            petstore_auth: ["write:pets", "read:pets"],
-          },
-        ],
       },
     },
+
     "/users/me": {
       get: {
         tags: ["user"],
@@ -276,16 +232,11 @@ const apiDocs = {
                 status: {
                   example: "success",
                 },
-                data: UserResponse,
+                data: filterScheme(UserScheme, { excludes: "password" }),
               },
             },
           },
-          401: {
-            description: "Your refresh token is not valid",
-          },
-          400: {
-            description: "Bad request",
-          },
+          ...possibleErrors(400, 401),
         },
         security: [
           {
@@ -308,13 +259,7 @@ const apiDocs = {
             name: "data",
             in: "formData",
             type: "object",
-            schema: {
-              type: "object",
-              properties: {
-                email: RegisterUserSchema.properties.email,
-                name: RegisterUserSchema.properties.name,
-              },
-            },
+            schema: filterScheme(UserScheme, { excludes: "password role" }),
           },
         ],
         security: [
@@ -331,16 +276,11 @@ const apiDocs = {
                 status: {
                   example: "success",
                 },
-                data: UserResponse,
+                data: filterScheme(UserScheme, { excludes: "password" }),
               },
             },
           },
-          401: {
-            description: "Your refresh token is not valid",
-          },
-          400: {
-            description: "Bad request",
-          },
+          ...possibleErrors(400, 401),
         },
       },
     },
@@ -372,7 +312,7 @@ const apiDocs = {
                 status: {
                   example: "success",
                 },
-                data: UserResponse,
+                data: filterScheme(UserScheme, { excludes: "password" }),
               },
             },
           },
@@ -434,20 +374,12 @@ const apiDocs = {
                 },
                 data: {
                   type: "array",
-                  items: UserResponse,
+                  items: filterScheme(UserScheme, { excludes: "password" }),
                 },
               },
             },
           },
-          401: {
-            description: "Your refresh token is not valid",
-          },
-          400: {
-            description: "Bad request",
-          },
-          403: {
-            description: "Unauthorized",
-          },
+          ...possibleErrors(400, 401, 403),
         },
       },
     },

@@ -7,6 +7,7 @@ const imageScheme = new mongoose.Schema({
     type: String,
     default: "public",
   },
+  userID: String,
 });
 
 module.exports = mongoConnection.model("image", imageScheme);

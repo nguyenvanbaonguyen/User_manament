@@ -3,7 +3,7 @@ const mongoConnection = require("../../databases/mongo.connection");
 const Scheme = mongoose.Schema;
 
 const HistoryUser = new Scheme({
-  userId: String,
+  userID: String,
   statusCode: Number,
   method: String,
   ip: String,

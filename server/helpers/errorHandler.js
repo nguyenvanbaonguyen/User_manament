@@ -1,3 +1,4 @@
+const { properties } = require("../api/v1/docs/image.scheme");
 const AppError = require("../classes/AppError.class");
 
 const handleCastErrorDB = (err) => {
@@ -12,10 +13,11 @@ const handleDuplicateDB = (err) => {
 };
 
 const handleValidationErrorDB = (err) => {
-  // console.log(err)
-  // const errors = Object.values(err.errors).map((error) => error.message);
-  // const message = `Invalid input data ${errors.join(". ")}`;
-  return new AppError("handleValidationErrorDB", 400);
+  const errorsMessage = Object.entries(err.errors)
+    .map(([key, properties]) => properties.message)
+    .join(" || ");
+
+  return new AppError(errorsMessage, 400);
 };
 
 const handleSyntaxError = (err) => {
