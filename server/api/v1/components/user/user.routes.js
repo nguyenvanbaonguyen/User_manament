@@ -1,5 +1,5 @@
 const express = require("express");
-const { saveHistoryUser, getUserHistory } = require("../historyUser/historyUser.controller");
+const { saveUserHistory, getUserHistory } = require("../userHistory/userHistory.controller");
 const { authUser, allowRoles } = require("../auth/auth.controller");
 const { getMe, updateMe, getUser, deleteUser, getUsers } = require("./user.controller");
 const PhotoHandler = require("../../../../classes/PhotoHandler.class");
@@ -10,12 +10,12 @@ const handlerPhoto = new PhotoHandler("users", "user");
 const uploadPhotoChain = handlerPhoto.chainHandlePhoto("avatar", 300);
 
 //! must authentication for use this route
-userRoute.use(authUser, saveHistoryUser);
+userRoute.use(authUser);
 userRoute.route("/me/histories").get(getUserHistory);
 userRoute
   .route("/me")
   .get(getMe)
-  .put(...uploadPhotoChain, updateMe);
+  .put(...uploadPhotoChain, saveUserHistory("Update yourself"), updateMe);
 userRoute.route("/me/pet").get(getPetsFromUser);
 
 //! must be admin to use this route

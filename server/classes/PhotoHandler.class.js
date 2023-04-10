@@ -1,7 +1,7 @@
 const multer = require("multer");
 const sharp = require("sharp");
 const imageModel = require("../api/v1/components/image/image.model");
-const { HOST, PORT } = require("../config");
+const { HOST, PORT, DEPLOY_PORT } = require("../config");
 const AppError = require("./AppError.class");
 
 const multerStorage = multer.memoryStorage();
@@ -58,7 +58,7 @@ PhotoHandler.prototype.resizePhoto = function (width) {
     if (!req.file) return next();
     const fileName = `${this.nameStorage}-${req[this.placeGetID].id}-${Date.now()}.webp`;
     const fieldName = req.file.fieldname;
-    const imageSave = new imageModel({ url: `${HOST}:${PORT}/api/v1/images/${fileName}`, type: this.type });
+    const imageSave = new imageModel({ url: `${HOST}:${DEPLOY_PORT}/api/v1/images/${fileName}`, type: this.type });
     if (req.user) imageSave.userID = req.user._id;
     const imageStore = await imageSave.save();
 

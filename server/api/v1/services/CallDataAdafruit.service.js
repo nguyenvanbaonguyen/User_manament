@@ -2,7 +2,7 @@ const axios = require("axios");
 const axiosClient = axios.create({
   baseURL: "https://io.adafruit.com/api/v2/",
   timeout: 5000,
-  headers: { "x-aio-key": "aio_cTDy09wYPf9Cs1MkqsA1wOHaMNFc" },
+  headers: { "x-aio-key": "aio_yAzB70OoOKy2p00xumx9p8o3lDbI" },
 });
 
 const AdafruitAPI = {

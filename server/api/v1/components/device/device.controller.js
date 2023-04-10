@@ -34,7 +34,7 @@ const getDevices = deviceFactory.getAll();
 
 const deleteDevice = deviceFactory.deleteOne();
 
-const updateDevice = deviceFactory.updateOne();
+const updateDevice = deviceFactory.updateOne({ bans: ["petID", "userID", "status"] });
 
 const allowDeviceHost = deviceFactory.allowCorrectHost();
 

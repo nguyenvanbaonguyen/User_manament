@@ -26,7 +26,6 @@ FactoryCRUD.prototype.getOne = function () {
 FactoryCRUD.prototype.getAll = function (options) {
   return async (req, res, next) => {
     let additionRequest = {};
-    console.log(req.query);
     if (options?.base === "userID") additionRequest[options?.base] = req.params?.id || req.user?._id;
     else if (options?.base) additionRequest[options?.base] = req.params?.id;
     if (options?.query) additionRequest = { ...additionRequest, ...options?.query };
@@ -82,6 +81,8 @@ FactoryCRUD.prototype.allowCorrectHost = function () {
     if (req.user.role === "admin") return next();
     const item = await this.Model.findById(req.params.id);
     if (!item) return next(new AppError("No item with that ID", 404));
+    if (item.status === "deactivate")
+      return next(new AppError("Your item was deactivated, pls contact to admin to activate", 403));
     if ((await item.userID.toString()) == (await req.user._id.toString())) return next();
     return next(new AppError("You dont have permission with this pet", 403));
   };

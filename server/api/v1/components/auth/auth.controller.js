@@ -1,12 +1,10 @@
 const AppError = require("../../../../classes/AppError.class");
 const { asyncWrapperMiddlewareObj } = require("../../../../helpers/errorWrapper");
-const { setLocalsRes, getLocalsRes } = require("../../../../helpers/localsRes");
 const JWT = require("../../services/JWT.service");
 const UserModel = require("../user/user.model");
 const UserValidation = require("../user/user.validation");
 const redis = require("../../services/Redis.service");
 const Crypto = require("../../../../classes/Crypto.class");
-const { HOST } = require("../../../../config");
 
 const register = async (req, res, next) => {
   const dataUser = req.body;
@@ -89,22 +87,17 @@ const forgotPassword = async (req, res, next) => {
   await UserValidation.validateKey("email", email);
   const user = await UserModel.findOne({ email: email });
   if (!user) return next(new AppError("This email is not exists", 404));
-
   const [token, hashedToken] = Crypto.createPairHashToken();
-
   const ttl = await redis.ttl(`${user._id}-hashedToken`);
   if (ttl !== -2) return next(new AppError(`You must wait ${ttl} seconds to continue this service`, 429));
-
   await redis.set(`${user._id}-hashedToken`, 111, 60);
   await redis.set(`${hashedToken}-hashedToken`, `${user._id}-hashedToken`, 60);
 
-  // await mailSender.sendMail({ email, subject: "Reset password", token });
+  await mailSender.sendMail({ email, subject: "Reset password", token });
 
   res.status(200).json({
     status: "success",
     message: "Pls check your email to reset password",
-    attention: `Because i dont create interface for reset password, so you can post ${HOST}/api/v1/reset-token?token=:token with your new password`,
-    token,
   });
 };
 

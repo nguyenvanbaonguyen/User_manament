@@ -5,13 +5,12 @@ const Scheme = mongoose.Schema;
 const HistoryUser = new Scheme({
   userID: String,
   statusCode: Number,
-  method: String,
+  action: String,
   ip: String,
   time: {
     default: Date.now(),
     type: Date,
   },
-  originalUrl: String,
 });
 
 module.exports = mongoConnection.model("user-history", HistoryUser);

@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 const fs = require("fs");
-const { EMAIL_USERNAME, EMAIL_PASSWORD } = require("../../../config");
+const { EMAIL_USERNAME, EMAIL_PASSWORD, HOST, DEPLOY_PORT } = require("../../../config");
 
 const resetPasswordTemplate = fs.readFileSync(`${__publicdir}/views/resetPasswordMail.template.html`).toString();
 
@@ -23,7 +23,7 @@ class SendMail {
       from: EMAIL_USERNAME,
       to: options.email,
       subject: options.subject,
-      html: resetPasswordTemplate.replace(`http://localhost:3000/reset-password/${options.token}`),
+      html: resetPasswordTemplate.replace(`http://${HOST}:${DEPLOY_PORT}/reset-password/${options.token}`),
     };
     await this.transporter.sendMail(mailOptions);
   }

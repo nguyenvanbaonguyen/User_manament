@@ -13,19 +13,6 @@ const importData = async () => {
   }
 };
 
-// //Delete DATA from DB
-// const deleteData = async () => {
-//   try {
-//     await Tour.deleteMany();
-//     await ReviewModel.deleteMany();
-//     await UserModel.deleteMany();
-//     console.log("Data delete successfully");
-//     exit(1);
-//   } catch (err) {
-//     console.log(err);
-//   }
-// };
-
 if (process.argv[2] === "--import") {
   importData();
 }

@@ -9,6 +9,8 @@ const DeviceScheme = new mongoose.Schema({
   },
   type: {
     type: String,
+    enum: ["food", "water"],
+    required: true,
   },
   userID: {
     type: mongoose.Schema.ObjectId,

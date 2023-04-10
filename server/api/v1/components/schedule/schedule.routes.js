@@ -8,7 +8,7 @@ const scheduleRoute = require("express").Router();
 
 scheduleRoute.use(authUser);
 
-scheduleRoute.use("/:id", allowScheduleHost).route("/:id").delete(deleteSchedule);
+scheduleRoute.route("/:id").all(allowScheduleHost).delete(deleteSchedule);
 
 setInterval(async () => {
   const realSchedules = [];
