@@ -18,6 +18,7 @@ deviceRoute.use(authUser);
 
 deviceRoute.route("/").get(allowRoles(["admin"]), getDevices);
 
+//Todo: Just allow device host correctly
 deviceRoute.use("/:id", allowDeviceHost);
 
 deviceRoute.route("/:id/deactivate").patch(allowRoles(["admin"]), deactiveDevice);

@@ -48,6 +48,11 @@ const User = new Scheme(
       type: mongoose.Schema.ObjectId,
       ref: "image",
     },
+    gender: {
+      enum: ["male", "female"],
+      required: true,
+      type: String,
+    },
   },
   {
     toJSON: { virtuals: true },

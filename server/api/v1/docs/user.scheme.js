@@ -23,6 +23,7 @@ const UserScheme = {
     role: {
       example: "user",
     },
+
     avatar: ImageScheme,
   },
 };
