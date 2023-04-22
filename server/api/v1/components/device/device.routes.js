@@ -8,7 +8,7 @@ const {
   allowDeviceHost,
   getDevice,
   deleteDevice,
-  sendAmountFood,
+  sendSignal,
   getAmountFoodInPlate,
 } = require("./device.controller");
 
@@ -27,7 +27,7 @@ deviceRoute.route("/:id/activate").patch(allowRoles(["admin"]), activeDevice);
 deviceRoute.route("/:id").get(getDevice).delete(deleteDevice);
 deviceRoute.route("/:id/schedules").post(createScheduleFromDevice).get(getSchedulesFromDevice);
 deviceRoute.route("/:id/history-device").get(getAllDeviceHistories);
-deviceRoute.post("/:id/food", sendAmountFood);
+deviceRoute.post("/:id/signal", sendSignal);
 deviceRoute.get("/:id/food-in-plate", getAmountFoodInPlate);
 
 module.exports = deviceRoute;

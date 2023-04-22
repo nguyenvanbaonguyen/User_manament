@@ -4,7 +4,7 @@ const mongoConnection = require("../../databases/mongo.connection");
 const deviceHistory = new mongoose.Schema({
   type: {
     type: String,
-    enum: ["food", "water"],
+    enum: ["food", "water", "clean"],
   },
   amount: {
     type: Number,

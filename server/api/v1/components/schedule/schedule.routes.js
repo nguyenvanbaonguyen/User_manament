@@ -24,8 +24,12 @@ setInterval(async () => {
     realSchedules.map(async (schedule) => {
       try {
         const { amount, deviceID } = schedule;
-        await AdafruitAPI.sendAmountFood({ value: amount });
-        const newDeviceHistory = new deviceHistoryModel({ type: "food", amount, deviceID });
+        const device = await deviceModel.findById(deviceID);
+        if (!device) return;
+        const { type } = device;
+
+        await AdafruitAPI.convertTypeToFunctionAdafruit(type)({ value: amount });
+        const newDeviceHistory = new deviceHistoryModel({ type, amount, deviceID });
         await newDeviceHistory.save();
         if (schedule.type === "once") await scheduleModel.findByIdAndDelete(schedule._id);
       } catch (err) {

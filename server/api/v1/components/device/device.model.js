@@ -8,8 +8,8 @@ const DeviceScheme = new mongoose.Schema({
     unique: true,
   },
   type: {
-  type: String,
-    enum: ["food", "water"],
+    type: String,
+    enum: ["food", "water", "clean"],
     required: true,
   },
   userID: {

@@ -51,13 +51,20 @@ const deactiveDevice = changeStatusDevice("deactivate");
 
 const activeDevice = changeStatusDevice("activate");
 
-const sendAmountFood = async (req, res, next) => {
+const sendSignal = async (req, res, next) => {
   const deviceID = req.params.id;
+  const device = await deviceModel.findById(deviceID);
+  if (!device) return next(new AppError("Device with that ID is not exist", 404));
+
+  const { type } = device;
   const { amount } = req.body;
-  if (!amount) return next(new AppError("Pls provide amount food", 401));
-  await AdafruitAPI.sendAmountFood({ value: amount });
-  const newDeviceHistory = new deviceHistoryModel({ type: "food", amount, deviceID });
+  if (!amount) return next(new AppError("Pls provide amount for this action", 401));
+
+  await AdafruitAPI.convertTypeToFunctionAdafruit(type)({ value: amount });
+
+  const newDeviceHistory = new deviceHistoryModel({ type, amount, deviceID });
   await newDeviceHistory.save();
+  
   res.status(201).json({
     status: "success",
   });
@@ -82,7 +89,7 @@ const allFns = {
   allowDeviceHost,
   deactiveDevice,
   activeDevice,
-  sendAmountFood,
+  sendSignal,
   getAmountFoodInPlate,
 };
 asyncWrapperMiddlewareObj(allFns);
