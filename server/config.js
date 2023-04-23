@@ -3,6 +3,7 @@ require("dotenv").config();
 const PORT = process.env.PORT;
 const HOST = process.env.HOST || "localhost";
 const DEPLOY_PORT = process.env.DEPLOY_PORT || PORT;
+const ADAFRUIT_KEY = process.env.ADAFRUIT_KEY;
 
 const MONGO_HOST = process.env.MONGO_HOST || "localhost";
 const MONGO_NAME = process.env.MONGO_NAME || "test";
@@ -28,4 +29,5 @@ module.exports = {
   EMAIL_PASSWORD,
   EMAIL_USERNAME,
   DEPLOY_PORT,
+  ADAFRUIT_KEY,
 };

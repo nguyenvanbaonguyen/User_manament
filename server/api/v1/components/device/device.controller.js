@@ -64,7 +64,7 @@ const sendSignal = async (req, res, next) => {
 
   const newDeviceHistory = new deviceHistoryModel({ type, amount, deviceID });
   await newDeviceHistory.save();
-  
+
   res.status(201).json({
     status: "success",
   });

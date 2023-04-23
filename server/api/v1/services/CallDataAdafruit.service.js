@@ -1,8 +1,10 @@
 const axios = require("axios");
+const { ADAFRUIT_KEY } = require("../../../config");
+
 const axiosClient = axios.create({
   baseURL: "https://io.adafruit.com/api/v2/",
   timeout: 5000,
-  headers: { "x-aio-key": process.env.ADAFRUIT_API_KEY },
+  headers: { "x-aio-key": ADAFRUIT_KEY },
 });
 
 const AdafruitAPI = {
